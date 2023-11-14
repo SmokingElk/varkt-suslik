@@ -19,7 +19,7 @@ VY0 = 0.1
 COLOR_FUEL = (241,53,53)
 COLOR_FREE = (53, 178, 241)
 DT = 0.01
-SIMULATION_TIME = 80
+SIMULATION_TIME = 40
 
 
 def distToMoon(x, y):
@@ -34,12 +34,14 @@ def eulerIntegration(rX, rY, vX, vY, fuelMass, fuelFlow):
     fuelMass1 = max(0, fuelMass - fuelFlow * DT)
     fullShipMass = SHIP_MASS + (fuelMass + fuelMass1) / 2
 
+    # сила тяги двигателя
     fEngine = ENGINE_FORCE_MAG 
     if (fuelMass + fuelMass1) / 2 <= 0:
         fEngine = 0
 
     alpha = atan2(vY, vX)
 
+    # сила притяжения
     fAttr = getAttractionMag(rX, rY)
     phi = atan2(rY, rX)
 
@@ -56,7 +58,8 @@ def eulerIntegration(rX, rY, vX, vY, fuelMass, fuelFlow):
 
 
 def simulation(rX, rY, vX, vY, fuelMass, engineWorkingTime):
-    FUEL_FLOW = fuelMass / engineWorkingTime # удельный расход топлива
+    # удельный расход топлива
+    FUEL_FLOW = fuelMass / engineWorkingTime 
     STEPS_COUNT = int(SIMULATION_TIME / DT)
 
     trajectoryFuel = [(rX, rY)]
@@ -74,7 +77,8 @@ def simulation(rX, rY, vX, vY, fuelMass, engineWorkingTime):
         isCrash = distToMoon(rX, rY) <= MOON_RADIUS
         if isCrash:
             break
-
+    
+    # соединить траекторию полета с включенным и выключенным двигателем
     trajectoryFree = [trajectoryFuel[-1]] + trajectoryFree
 
     return trajectoryFuel, trajectoryFree, isCrash
