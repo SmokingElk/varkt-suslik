@@ -7,16 +7,17 @@ MOON_MASS = 0.5
 G = 1
 
 SHIP_MASS = 0.02
-ENGINE_WORKING_TIME = 0.03
-ENGINE_FORCE_MAG = 0.02
-FUEL_MASS0 = 0.0
+ENGINE_WORKING_TIME = 4.5
+ENGINE_FORCE_MAG = 0.0008
+FUEL_MASS0 = 0.01
 
 RX0 = 0
 RY0 = 1.0
-VX0 = 0.1
+VX0 = 0.7
 VY0 = 0.1
 
-COLOR = (53, 178, 241)
+COLOR_FUEL = (241,53,53)
+COLOR_FREE = (53, 178, 241)
 DT = 0.01
 STEPS_COUNT = 8000
 
@@ -34,8 +35,9 @@ def eulerIntegration(rX, rY, vX, vY, fuelMass, fuelFlow):
     fullShipMass = SHIP_MASS + (fuelMass + fuelMass1) / 2
 
     fEngine = ENGINE_FORCE_MAG 
-    if (fuelMass + fuelMass1) / 2 > 0:
+    if (fuelMass + fuelMass1) / 2 <= 0:
         fEngine = 0
+
     alpha = atan2(vY, vX)
 
     fAttr = getAttractionMag(rX, rY)
@@ -56,29 +58,36 @@ def eulerIntegration(rX, rY, vX, vY, fuelMass, fuelFlow):
 def simulation(rX, rY, vX, vY, fuelMass, engineWorkingTime):
     FUEL_FLOW = fuelMass / engineWorkingTime # удельный расход топлива
     
-    trajectory = [(rX, rY)]
+    trajectoryFuel = [(rX, rY)]
+    trajectoryFree = []
     isCrash = False
 
     for i in range(STEPS_COUNT):
         rX, rY, vX, vY, fuelMass = eulerIntegration(rX, rY, vX, vY, fuelMass, FUEL_FLOW)
 
-        trajectory.append((rX, rY))
+        if fuelMass > 0:
+            trajectoryFuel.append((rX, rY))
+        else:
+            trajectoryFree.append((rX, rY))
 
         isCrash = distToMoon(rX, rY) <= MOON_RADIUS
         if isCrash:
             break
 
-    return trajectory, isCrash
+    trajectoryFree = [trajectoryFuel[-1]] + trajectoryFree
+
+    return trajectoryFuel, trajectoryFree, isCrash
 
 
 def main(): 
-    trajectory, isCrash = simulation(RX0, RY0, VX0, VY0, FUEL_MASS0, ENGINE_WORKING_TIME)
+    trajectoryFuel, trajectoryFree, isCrash = simulation(RX0, RY0, VX0, VY0, FUEL_MASS0, ENGINE_WORKING_TIME)
 
     if isCrash:
         print("CRASH!")
 
     make_plot(MOON_RADIUS, [
-        [COLOR, trajectory],
+        [COLOR_FUEL, trajectoryFuel],
+        [COLOR_FREE, trajectoryFree],
     ], "./model_1/plot.png")
 
 
