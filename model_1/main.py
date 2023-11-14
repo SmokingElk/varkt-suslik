@@ -19,7 +19,7 @@ VY0 = 0.1
 COLOR_FUEL = (241,53,53)
 COLOR_FREE = (53, 178, 241)
 DT = 0.01
-STEPS_COUNT = 8000
+SIMULATION_TIME = 80
 
 
 def distToMoon(x, y):
@@ -57,7 +57,8 @@ def eulerIntegration(rX, rY, vX, vY, fuelMass, fuelFlow):
 
 def simulation(rX, rY, vX, vY, fuelMass, engineWorkingTime):
     FUEL_FLOW = fuelMass / engineWorkingTime # удельный расход топлива
-    
+    STEPS_COUNT = int(SIMULATION_TIME / DT)
+
     trajectoryFuel = [(rX, rY)]
     trajectoryFree = []
     isCrash = False
