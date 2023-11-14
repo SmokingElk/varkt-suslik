@@ -11,10 +11,10 @@ DT = 0.01
 STEPS_COUNT = 8000
 
 RX0 = 0
-RY0 = 1.2
+RY0 = 1.0
 
 VX0 = 0.8
-VY0 = 0.0
+VY0 = 0.1
 
 
 def distToMoon(x, y):
