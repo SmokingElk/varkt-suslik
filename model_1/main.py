@@ -65,7 +65,7 @@ def main():
 
     make_plot(MOON_RADIUS, [
         [COLOR, trajectory],
-    ])
+    ], "./model_1/plot.png")
 
 
 if __name__ == "__main__":

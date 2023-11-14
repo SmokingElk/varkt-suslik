@@ -19,7 +19,7 @@ def draw_path(draw, pathData):
         draw.line((real_path[i], real_path[i - 1]), fill=color, width=LINE_WIDTH)
 
 
-def make_plot(planet_radius, paths):
+def make_plot(planet_radius, paths, saveas):
     image = Image.new('RGBA', (WIDTH, HEIGHT))
     draw = ImageDraw.Draw(image)
 
@@ -34,4 +34,4 @@ def make_plot(planet_radius, paths):
     for i in paths:
         draw_path(draw, i)    
 
-    image.save('plot.png')
+    image.save(saveas)
