@@ -58,7 +58,7 @@ def eulerIntegration(rX, rY, vX, vY, fuelMass, fuelFlow):
 
 
 def simulation(rX, rY, vX, vY, fuelMass, engineWorkingTime):
-    # удельный расход топлива
+    # скорость расхода топлива
     FUEL_FLOW = fuelMass / engineWorkingTime 
     STEPS_COUNT = int(SIMULATION_TIME / DT)
 
@@ -73,9 +73,9 @@ def simulation(rX, rY, vX, vY, fuelMass, engineWorkingTime):
             trajectoryFuel.append((rX, rY))
         else:
             trajectoryFree.append((rX, rY))
-
-        isCrash = distToMoon(rX, rY) <= MOON_RADIUS
-        if isCrash:
+ 
+        if distToMoon(rX, rY) <= MOON_RADIUS:
+            isCrash = True
             break
     
     # соединить траекторию полета с включенным и выключенным двигателем
