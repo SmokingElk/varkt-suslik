@@ -26,8 +26,8 @@ def distToMoon(x, y):
     return sqrt(x**2 + y**2)
 
 
-def getAttractionMag(x, y):
-    return G * MOON_MASS * SHIP_MASS / distToMoon(x, y)**2
+def getAttractionMag(x, y, fullShipMass):
+    return G * MOON_MASS * fullShipMass / distToMoon(x, y)**2
 
 
 def eulerIntegration(rX, rY, vX, vY, fuelMass, fuelFlow):
@@ -42,7 +42,7 @@ def eulerIntegration(rX, rY, vX, vY, fuelMass, fuelFlow):
     alpha = atan2(vY, vX)
 
     # сила притяжения
-    fAttr = getAttractionMag(rX, rY)
+    fAttr = getAttractionMag(rX, rY, fullShipMass)
     phi = atan2(rY, rX)
 
     aX = (cos(alpha) * fEngine - cos(phi) * fAttr) / fullShipMass
