@@ -8,7 +8,7 @@ G = 1
 
 SHIP_MASS = 0.02
 ENGINE_WORKING_TIME = 4.5
-ENGINE_FORCE_MAG = 0.0008
+ENGINE_THRUST = 0.0008
 FUEL_MASS0 = 0.01
 
 RX0 = 0
@@ -35,7 +35,7 @@ def eulerIntegration(rX, rY, vX, vY, fuelMass, fuelFlow):
     fullShipMass = SHIP_MASS + (fuelMass + fuelMass1) / 2
 
     # сила тяги двигателя
-    fEngine = ENGINE_FORCE_MAG 
+    fEngine = ENGINE_THRUST 
     if (fuelMass + fuelMass1) / 2 <= 0:
         fEngine = 0
 
