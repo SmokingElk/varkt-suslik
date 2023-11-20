@@ -2,6 +2,7 @@ from plotter import make_plot
 from math import sqrt, atan2, cos, sin
 
 # параметры симуляции
+# сила притяжения
 MOON_RADIUS = 1
 MOON_MASS = 0.5
 G = 1
