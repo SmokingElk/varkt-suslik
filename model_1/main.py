@@ -1,5 +1,6 @@
 from plotter import make_plot
 from math import sqrt, atan2, cos, sin
+from engines import CruiseEngine
 
 # параметры симуляции
 # сила притяжения
@@ -9,9 +10,6 @@ G = 1
 
 CRASH_THRESHOLD = 0.1
 SHIP_MASS = 0.02
-ENGINE_WORKING_TIME = 4.5
-ENGINE_THRUST = 0.015
-FUEL_MASS0 = 0.01
 
 RX0 = 0
 RY0 = 1.0
@@ -39,21 +37,24 @@ def getAttractionMag(x, y, fullShipMass):
 def isShipLanded(x, y, vX, vY):
     return distToMoon(x, y) <= MOON_RADIUS and vecMag(vX, vY) < CRASH_THRESHOLD
 
-
-def eulerIntegration(rX, rY, vX, vY, shipOrientation, fuelMass, fuelFlow):
+def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines):
     landed = isShipLanded(rX, rY, vX, vY)
-    fuelMass1 = max(0, fuelMass - fuelFlow * DT)
-    fullShipMass = SHIP_MASS + (fuelMass + fuelMass1) / 2
+    fullShipMass = SHIP_MASS
+    fEngine = 0
 
-    # сила притяжения
-    fAttr = getAttractionMag(rX, rY, fullShipMass)
-    phi = atan2(rY, rX)
+    for engine in engines:
+        fuelMass = engine.getFuelMass()
+        thrust, moment = engine.applyThrust(DT)
+        fuelMass1 = engine.getFuelMass()
+        fullShipMass += (fuelMass + fuelMass1) / 2
+        fEngine += thrust
+
+    # сила реакции опоры
+    fN = fAttr if landed else 0
+    
+    print(landed, fEngine, fN, fAttr)
 
     # сила тяги двигателя
-    fEngine = ENGINE_THRUST 
-    if (fuelMass + fuelMass1) / 2 <= 0:
-        fEngine = 0
-
     alpha = shipOrientation
 
     # сила реакции опоры
@@ -72,12 +73,12 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, fuelMass, fuelFlow):
 
     shipOrientation1 = shipOrientation
 
-    return rX1, rY1, vX1, vY1, shipOrientation1, fuelMass1
+    return rX1, rY1, vX1, vY1, shipOrientation1, fEngine
 
-
-def simulation(rX, rY, vX, vY, fuelMass, engineWorkingTime):
+  
+def simulation(rX, rY, vX, vY, engines):
     # скорость расхода топлива
-    FUEL_FLOW = fuelMass / engineWorkingTime 
+
     STEPS_COUNT = int(SIMULATION_TIME / DT)
 
     shipOrientation = atan2(rY, rX)
@@ -87,9 +88,9 @@ def simulation(rX, rY, vX, vY, fuelMass, engineWorkingTime):
     isCrash = False
 
     for i in range(STEPS_COUNT):
-        rX, rY, vX, vY, shipOrientation, fuelMass = eulerIntegration(rX, rY, vX, vY, shipOrientation, fuelMass, FUEL_FLOW)
+        rX, rY, vX, vY, shipOrientation, engineForces = eulerIntegration(rX, rY, vX, vY, shipOrientation, engines)
 
-        if fuelMass > 0:
+        if engineForces > 0:
             trajectoryFuel.append((rX, rY))
         else:
             trajectoryFree.append((rX, rY))
@@ -105,8 +106,16 @@ def simulation(rX, rY, vX, vY, fuelMass, engineWorkingTime):
     return trajectoryFuel, trajectoryFree, isCrash
 
 
-def main(): 
-    trajectoryFuel, trajectoryFree, isCrash = simulation(RX0, RY0, VX0, VY0, FUEL_MASS0, ENGINE_WORKING_TIME)
+def main():
+    ENGINE_WORKING_TIME = 4.5
+    ENGINE_THRUST = 0.015
+    FUEL_MASS0 = 0.01
+
+    main_engine = CruiseEngine(ENGINE_THRUST, FUEL_MASS0, ENGINE_WORKING_TIME)
+
+    main_engine.active()
+    engines = [main_engine]
+    trajectoryFuel, trajectoryFree, isCrash = simulation(RX0, RY0, VX0, VY0, engines)
 
     if isCrash:
         print("CRASH!")
@@ -114,7 +123,7 @@ def main():
     make_plot(MOON_RADIUS, [
         [COLOR_FUEL, trajectoryFuel],
         [COLOR_FREE, trajectoryFree],
-    ], "./model_1/plot.png")
+    ], "plot.png")
 
 
 if __name__ == "__main__":

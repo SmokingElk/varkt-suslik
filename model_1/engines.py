@@ -38,12 +38,13 @@ class CruiseEngine(EngineBase):
             super().active()
 
     def applyThrust(self, dt):
-        self._fuelMass = max(0, self.getFuelMass() - self.getDFuelMassDt() * dt)
+        self._fuelMass = max(0, self.getFuelMass() - self.getFuelMassDt() * dt)
 
         if self.getFuelMass() <= 0:
             self.inactive()
 
-        return super().applyThrust()
+        return super().applyThrust(dt)
+
     
 
 class ManeuveringThruster(EngineBase):
