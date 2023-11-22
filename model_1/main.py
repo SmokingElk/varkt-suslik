@@ -1,7 +1,7 @@
 from plotter import make_plot
 from math import sqrt, atan2, cos, sin
 from engines import CruiseEngine
-from rocket_parts import Part
+from rocket_parts import Part, getInertiaMoment
 
 # параметры симуляции
 # сила притяжения
@@ -38,14 +38,24 @@ def isShipLanded(x, y, vX, vY):
     return distToMoon(x, y) <= MOON_RADIUS and vecMag(vX, vY) < CRASH_THRESHOLD
 
 
-def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines, parts):
+def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, parts):
     landed = isShipLanded(rX, rY, vX, vY)
     fullShipMass = sum([i.getMass() for i in parts])
     fEngine = 0
 
+    momentsSum = 0
+
     for engine in engines:
         thrust, moment = engine.applyThrust(DT)
         fEngine += thrust
+        momentsSum +- moment
+
+    # вращение
+    inertiaMoment = getInertiaMoment(parts)
+
+    shipAngularAcc = momentsSum / inertiaMoment
+    shipAngularVel1 = shipAngularVel + shipAngularAcc * DT
+    shipOrientation1 = shipOrientation + (shipAngularVel + shipAngularVel1) / 2 * DT
 
     # сила притяжения
     fAttr = getAttractionMag(rX, rY, fullShipMass)
@@ -57,7 +67,7 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines, parts):
     print(landed, fEngine, fN, fAttr)
 
     # сила тяги двигателя
-    alpha = shipOrientation
+    alpha = (shipOrientation + shipOrientation1) / 2
 
     # сила реакции опоры
     fN = fAttr if landed else 0
@@ -73,22 +83,21 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines, parts):
     rX1 = rX + (vX + vX1) / 2 * DT
     rY1 = rY + (vY + vY1) / 2 * DT
 
-    shipOrientation1 = shipOrientation
-
-    return rX1, rY1, vX1, vY1, shipOrientation1, fEngine
+    return rX1, rY1, vX1, vY1, shipOrientation1, shipAngularVel1, fEngine
 
   
 def simulation(rX, rY, vX, vY, engines, parts):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
 
     shipOrientation = atan2(rY, rX)
+    shipAngularVel = 0
 
     trajectoryFuel = [(rX, rY)]
     trajectoryFree = []
     isCrash = False
 
     for i in range(STEPS_COUNT):
-        rX, rY, vX, vY, shipOrientation, engineForces = eulerIntegration(rX, rY, vX, vY, shipOrientation, engines, parts)
+        rX, rY, vX, vY, shipOrientation, shipAngularVel, engineForces = eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, parts)
 
         if engineForces > 0:
             trajectoryFuel.append((rX, rY))
