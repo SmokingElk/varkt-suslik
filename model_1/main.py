@@ -1,7 +1,7 @@
 from plotter import make_plot
 from math import sqrt, atan2, cos, sin
-from engines import CruiseEngine
 from rocket_parts import Part, getInertiaMoment
+from engines import CruiseEngine, ManeuveringThruster
 
 # параметры симуляции
 # сила притяжения
@@ -48,7 +48,7 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, p
     for engine in engines:
         thrust, moment = engine.applyThrust(DT)
         fEngine += thrust
-        momentsSum +- moment
+        momentsSum += moment
 
     # вращение
     inertiaMoment = getInertiaMoment(parts)
@@ -64,15 +64,13 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, p
     # сила реакции опоры
     fN = fAttr if landed else 0
     
-    print(landed, fEngine, fN, fAttr)
-
     # сила тяги двигателя
     alpha = (shipOrientation + shipOrientation1) / 2
 
     # сила реакции опоры
     fN = fAttr if landed else 0
     
-    print(landed, fEngine, fN, fAttr)
+    print(inertiaMoment, momentsSum, shipAngularAcc)
 
     aX = (cos(alpha) * fEngine + cos(phi) * (fN - fAttr)) / fullShipMass
     aY = (sin(alpha) * fEngine + sin(phi) * (fN - fAttr)) / fullShipMass
@@ -116,7 +114,7 @@ def simulation(rX, rY, vX, vY, engines, parts):
 
 
 def main():
-    ENGINE_WORKING_TIME = 4.5
+    ENGINE_WORKING_TIME = 4
     ENGINE_THRUST = 0.015
     FUEL_MASS0 = 0.01
     ENGINE_HEIGHT = 0.00003
@@ -131,7 +129,12 @@ def main():
     )
 
     main_engine.active()
-    engines = [main_engine]
+
+    thrusterRight = ManeuveringThruster(0.00001, 0.000000016, 1)
+    thrusterRight.active()
+    thrusterRight.setThrustLevel(1)
+
+    engines = [main_engine, thrusterRight]
     parts = [main_engine, Part(0.005, 0.00004)]
     trajectoryFuel, trajectoryFree, isCrash = simulation(RX0, RY0, VX0, VY0, engines, parts)
 

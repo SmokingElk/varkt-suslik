@@ -3,15 +3,15 @@ def getMassCenter(parts):
     massSum = 0
 
     for i in parts:
-        massDotHeight += i.mass * i.height
-        massSum += i.mass
+        massDotHeight += i.getMass() * i.getHeight()
+        massSum += i.getMass()
 
     return massDotHeight / massSum
 
 
 def getInertiaMoment(parts):
     massCenter = getMassCenter(parts)
-    return sum([i.mass * abs(i.height - massCenter)**2 for i in parts])
+    return sum([i.getMass() * abs(i.getHeight() - massCenter)**2 for i in parts])
 
 
 class Part:

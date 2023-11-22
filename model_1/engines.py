@@ -58,8 +58,8 @@ class CruiseEngine(EngineBase):
 
 class ManeuveringThruster(EngineBase):
     # direction:
-    # 1 - cw
-    # -1 - ccw
+    # 1 - ccw
+    # -1 - cw
     def __init__(self, thrust, height, direction):
         super().__init__(thrust)
 
