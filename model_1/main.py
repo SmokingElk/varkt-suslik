@@ -1,6 +1,7 @@
 from plotter import make_plot
 from math import sqrt, atan2, cos, sin
 from engines import CruiseEngine
+from rocket_parts import Part
 
 # параметры симуляции
 # сила притяжения
@@ -9,7 +10,6 @@ MOON_MASS = 0.5
 G = 1
 
 CRASH_THRESHOLD = 0.1
-SHIP_MASS = 0.02
 
 RX0 = 0
 RY0 = 1.0
@@ -37,16 +37,14 @@ def getAttractionMag(x, y, fullShipMass):
 def isShipLanded(x, y, vX, vY):
     return distToMoon(x, y) <= MOON_RADIUS and vecMag(vX, vY) < CRASH_THRESHOLD
 
-def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines):
+
+def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines, parts):
     landed = isShipLanded(rX, rY, vX, vY)
-    fullShipMass = SHIP_MASS
+    fullShipMass = sum([i.getMass() for i in parts])
     fEngine = 0
 
     for engine in engines:
-        fuelMass = engine.getFuelMass()
         thrust, moment = engine.applyThrust(DT)
-        fuelMass1 = engine.getFuelMass()
-        fullShipMass += (fuelMass + fuelMass1) / 2
         fEngine += thrust
 
     # сила притяжения
@@ -80,7 +78,7 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines):
     return rX1, rY1, vX1, vY1, shipOrientation1, fEngine
 
   
-def simulation(rX, rY, vX, vY, engines):
+def simulation(rX, rY, vX, vY, engines, parts):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
 
     shipOrientation = atan2(rY, rX)
@@ -90,7 +88,7 @@ def simulation(rX, rY, vX, vY, engines):
     isCrash = False
 
     for i in range(STEPS_COUNT):
-        rX, rY, vX, vY, shipOrientation, engineForces = eulerIntegration(rX, rY, vX, vY, shipOrientation, engines)
+        rX, rY, vX, vY, shipOrientation, engineForces = eulerIntegration(rX, rY, vX, vY, shipOrientation, engines, parts)
 
         if engineForces > 0:
             trajectoryFuel.append((rX, rY))
@@ -112,12 +110,21 @@ def main():
     ENGINE_WORKING_TIME = 4.5
     ENGINE_THRUST = 0.015
     FUEL_MASS0 = 0.01
+    ENGINE_HEIGHT = 0.00003
+    ENGINE_MASS = 0.015
 
-    main_engine = CruiseEngine(ENGINE_THRUST, FUEL_MASS0, ENGINE_WORKING_TIME)
+    main_engine = CruiseEngine(
+        ENGINE_THRUST, 
+        FUEL_MASS0, 
+        ENGINE_WORKING_TIME, 
+        ENGINE_HEIGHT, 
+        ENGINE_MASS
+    )
 
     main_engine.active()
     engines = [main_engine]
-    trajectoryFuel, trajectoryFree, isCrash = simulation(RX0, RY0, VX0, VY0, engines)
+    parts = [main_engine, Part(0.005, 0.00004)]
+    trajectoryFuel, trajectoryFree, isCrash = simulation(RX0, RY0, VX0, VY0, engines, parts)
 
     if isCrash:
         print("CRASH!")

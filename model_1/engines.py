@@ -1,5 +1,9 @@
-class EngineBase:
-    def __init__(self, thrust):
+from rocket_parts import Part
+
+
+class EngineBase(Part):
+    def __init__(self, thrust, mass=0, height=0):
+        super().__init__(mass, height)
         self._thrust = thrust
         self._isActive = False
 
@@ -23,8 +27,8 @@ class EngineBase:
     
 
 class CruiseEngine(EngineBase):
-    def __init__(self, thrust, fuelMass0, workingTime):
-        super().__init__(thrust)
+    def __init__(self, thrust, fuelMass0, workingTime, height, mass=0):
+        super().__init__(thrust, mass, height)
 
         self._fuelMass = fuelMass0
         self._dFuelMassDt = fuelMass0 / workingTime
@@ -35,6 +39,9 @@ class CruiseEngine(EngineBase):
 
     def getFuelMass(self):
         return self._fuelMass
+    
+    def getMass(self):
+        return super().getMass() + self.getFuelMass()
 
     def active(self):
         if self.getFuelMass() > 0:
