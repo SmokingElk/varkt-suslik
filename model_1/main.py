@@ -49,6 +49,10 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines):
         fullShipMass += (fuelMass + fuelMass1) / 2
         fEngine += thrust
 
+    # сила притяжения
+    fAttr = getAttractionMag(rX, rY, fullShipMass)
+    phi = atan2(rY, rX)
+
     # сила реакции опоры
     fN = fAttr if landed else 0
     
@@ -123,7 +127,7 @@ def main():
     make_plot(MOON_RADIUS, [
         [COLOR_FUEL, trajectoryFuel],
         [COLOR_FREE, trajectoryFree],
-    ], "plot.png")
+    ], "./model_1/plot.png")
 
 
 if __name__ == "__main__":
