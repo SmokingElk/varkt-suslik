@@ -8,10 +8,8 @@ MOON_RADIUS = 1
 MOON_MASS = 0.5
 G = 1
 
-
 CRASH_THRESHOLD = 0.1
 SHIP_MASS = 0.02
-
 
 RX0 = 0
 RY0 = 1.0
@@ -39,7 +37,6 @@ def getAttractionMag(x, y, fullShipMass):
 def isShipLanded(x, y, vX, vY):
     return distToMoon(x, y) <= MOON_RADIUS and vecMag(vX, vY) < CRASH_THRESHOLD
 
-
 def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines):
     landed = isShipLanded(rX, rY, vX, vY)
     fullShipMass = SHIP_MASS
@@ -52,13 +49,12 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines):
         fullShipMass += (fuelMass + fuelMass1) / 2
         fEngine += thrust
 
-    # сила притяжения
-    fAttr = getAttractionMag(rX, rY, fullShipMass)
-    phi = atan2(rY, rX)
+    # сила реакции опоры
+    fN = fAttr if landed else 0
+    
+    print(landed, fEngine, fN, fAttr)
 
     # сила тяги двигателя
-
-
     alpha = shipOrientation
 
     # сила реакции опоры
@@ -79,7 +75,7 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines):
 
     return rX1, rY1, vX1, vY1, shipOrientation1, fEngine
 
-
+  
 def simulation(rX, rY, vX, vY, engines):
     # скорость расхода топлива
 

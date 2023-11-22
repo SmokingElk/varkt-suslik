@@ -44,6 +44,7 @@ class CruiseEngine(EngineBase):
             self.inactive()
 
         return super().applyThrust(dt)
+
     
 
 class ManeuveringThruster(EngineBase):
@@ -55,9 +56,13 @@ class ManeuveringThruster(EngineBase):
 
         self._height = height
         self._direction = direction
+        self._thrustLevel = 0
+
+    def setThrustLevel(self, level):
+        self._thrustLevel = min(1, max(0, level))
 
     def getMoment(self):
-        return self._height * self._direction * self.getThrust() 
+        return self._height * self._direction * self._thrustLevel * self.getThrust() 
 
     def applyThrust(self, dt):
         return 0, self.getMoment()
