@@ -18,6 +18,9 @@ class EngineBase:
     def applyThrust(self, dt):
         return self.getThrust(), 0
     
+    def getFuelMass(self):
+        return 0
+    
 
 class CruiseEngine(EngineBase):
     def __init__(self, thrust, fuelMass0, workingTime):
@@ -45,7 +48,6 @@ class CruiseEngine(EngineBase):
 
         return super().applyThrust(dt)
 
-    
 
 class ManeuveringThruster(EngineBase):
     # direction:

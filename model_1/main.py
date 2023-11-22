@@ -81,8 +81,6 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, engines):
 
   
 def simulation(rX, rY, vX, vY, engines):
-    # скорость расхода топлива
-
     STEPS_COUNT = int(SIMULATION_TIME / DT)
 
     shipOrientation = atan2(rY, rX)
