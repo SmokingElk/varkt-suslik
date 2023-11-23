@@ -25,7 +25,7 @@ if __name__ == "__main__":
     from random import randint
 
     DT = 0.1
-    pid = PidRegulator(0.0001, 0.0000000005, 8, DT)
+    pid = PidRegulator(0.0, 0.0, 8, DT)
 
     current = 0
     v = 0
@@ -36,11 +36,12 @@ if __name__ == "__main__":
     while True:
         sleep(DT)
         
+        target = 20 + 10 * sin(t / 10)
         v += pid.control(target - current) * DT
         current += v * DT
         t += DT
         print(f"{current:.10f} {target:.10f} {abs(target - current):.10f}")
 
-        if t - tmr > 6:
-            tmr = t
-            target = 10 + randint(0, 20)
+        # if t - tmr > 6:
+        #     tmr = t
+        #     target = 10 + randint(0, 20)
