@@ -2,7 +2,8 @@ from plotter import make_plot
 from math import sqrt, atan2, cos, sin
 from rocket_parts import Part, getInertiaMoment
 from engines import CruiseEngine, ManeuveringThruster
-from controller import Controller, test_script
+from controller import Controller
+from controller_scripts import MainScript
 
 # параметры симуляции
 # сила притяжения
@@ -86,7 +87,7 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, p
 
 def simulation(rX, rY, vX, vY, engines, parts):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
-    controller = Controller({"engines": engines}, [test_script])
+    controller = Controller({"main_engine": engines[0], "thruster_left": engines[1], "thruster_right": engines[2]}, [MainScript()])
 
     shipOrientation = atan2(rY, rX)
     shipAngularVel = 0
@@ -117,28 +118,30 @@ def simulation(rX, rY, vX, vY, engines, parts):
 
 
 def main():
-    ENGINE_WORKING_TIME = 4
-    ENGINE_THRUST = 0.015
-    FUEL_MASS0 = 0.01
-    ENGINE_HEIGHT = 0.00003
-    ENGINE_MASS = 0.015
+    THRUSTERS_HEIGHT = 0.000000016
+    THRUSTERS_THRUST = 0.00001
 
     main_engine = CruiseEngine(
-        ENGINE_THRUST, 
-        FUEL_MASS0, 
-        ENGINE_WORKING_TIME, 
-        ENGINE_HEIGHT, 
-        ENGINE_MASS
+        thrust=0.015, 
+        fuelMass0=0.01, 
+        workingTime=4, 
+        height=0.00003, 
+        mass=0.015
     )
 
-    main_engine.active()
+    thrusterRight = ManeuveringThruster(
+        thrust=THRUSTERS_THRUST, 
+        height=THRUSTERS_HEIGHT, 
+        direction=-1
+    )
 
-    thrusterRight = ManeuveringThruster(0.00001, 0.000000016, 1)
-    thrusterRight.active()
-    thrusterRight.setThrustLevel(1)
-    main_engine.setThrustLevel(0.1)
+    thrusterLeft = ManeuveringThruster(
+        thrust=THRUSTERS_THRUST, 
+        height=THRUSTERS_HEIGHT, 
+        direction=1
+    )
 
-    engines = [main_engine, thrusterRight]
+    engines = [main_engine, thrusterLeft, thrusterRight]
     parts = [main_engine, Part(0.005, 0.00004)]
 
     trajectoryFuel, trajectoryFree, isCrash = simulation(RX0, RY0, VX0, VY0, engines, parts)
