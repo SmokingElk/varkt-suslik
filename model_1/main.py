@@ -2,6 +2,7 @@ from plotter import make_plot
 from math import sqrt, atan2, cos, sin
 from rocket_parts import Part, getInertiaMoment
 from engines import CruiseEngine, ManeuveringThruster
+import controller
 
 # параметры симуляции
 # сила притяжения
@@ -83,9 +84,10 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, p
 
     return rX1, rY1, vX1, vY1, shipOrientation1, shipAngularVel1, fEngine
 
-  
 def simulation(rX, rY, vX, vY, engines, parts):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
+    model = controller.ControllableModel(engines=engines)
+    controller_ = controller.Controller(model, [controller.test_script])
 
     shipOrientation = atan2(rY, rX)
     shipAngularVel = 0
@@ -96,7 +98,7 @@ def simulation(rX, rY, vX, vY, engines, parts):
 
     for i in range(STEPS_COUNT):
         rX, rY, vX, vY, shipOrientation, shipAngularVel, engineForces = eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, parts)
-
+        controller_.update(t=i * DT, rX=rX, rY=rY, vX=vX, vY=vY, shipOrientation=shipOrientation, shipAngularVel=shipAngularVel)
         if engineForces > 0:
             trajectoryFuel.append((rX, rY))
         else:
@@ -133,9 +135,11 @@ def main():
     thrusterRight = ManeuveringThruster(0.00001, 0.000000016, 1)
     thrusterRight.active()
     thrusterRight.setThrustLevel(1)
+    main_engine.setThrustLevel(0.1)
 
     engines = [main_engine, thrusterRight]
     parts = [main_engine, Part(0.005, 0.00004)]
+
     trajectoryFuel, trajectoryFree, isCrash = simulation(RX0, RY0, VX0, VY0, engines, parts)
 
     if isCrash:
@@ -144,7 +148,7 @@ def main():
     make_plot(MOON_RADIUS, [
         [COLOR_FUEL, trajectoryFuel],
         [COLOR_FREE, trajectoryFree],
-    ], "./model_1/plot.png")
+    ], "plot.png")
 
 
 if __name__ == "__main__":
