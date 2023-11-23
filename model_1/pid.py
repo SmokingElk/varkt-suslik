@@ -12,11 +12,9 @@ class PidRegulator:
         self.errIntegral = 0
 
     def control(self, err):
-        dErr = err - self.prevErr
+        self.errIntegral += err * self.dt
+        dErrDt = (err - self.prevErr) / self.dt
         self.prevErr = err
-
-        self.errIntegral += dErr * self.dt
-        dErrDt = dErr / self.dt
 
         return self.kP * err + self.kI * self.errIntegral + self.kD * dErrDt
     
@@ -24,20 +22,25 @@ class PidRegulator:
 if __name__ == "__main__":
     from time import sleep
     from math import sin
+    from random import randint
 
     DT = 0.1
-    pid = PidRegulator(0.0001, 0.0001, 0.99, DT)
+    pid = PidRegulator(0.0001, 0.0000000005, 8, DT)
 
     current = 0
     v = 0
     target = 20
     t = 0
+    tmr = 0
 
     while True:
         sleep(DT)
         
-        target = 20 + 2 * sin(t / 10)
         v += pid.control(target - current) * DT
         current += v * DT
         t += DT
         print(f"{current:.10f} {target:.10f} {abs(target - current):.10f}")
+
+        if t - tmr > 6:
+            tmr = t
+            target = 10 + randint(0, 20)
