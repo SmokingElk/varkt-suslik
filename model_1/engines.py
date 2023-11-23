@@ -38,7 +38,6 @@ class CruiseEngine(EngineBase):
         self._dFuelMassDt = fuelMass0 / workingTime
         self._workingTime = workingTime
 
-
     def getFuelMassDt(self):
         return self._dFuelMassDt
 

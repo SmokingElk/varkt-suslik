@@ -2,7 +2,7 @@ from plotter import make_plot
 from math import sqrt, atan2, cos, sin
 from rocket_parts import Part, getInertiaMoment
 from engines import CruiseEngine, ManeuveringThruster
-import controller
+from controller import Controller, test_script
 
 # параметры симуляции
 # сила притяжения
@@ -86,8 +86,7 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, p
 
 def simulation(rX, rY, vX, vY, engines, parts):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
-    model = controller.ControllableModel(engines=engines)
-    controller_ = controller.Controller(model, [controller.test_script])
+    controller = Controller({"engines": engines}, [test_script])
 
     shipOrientation = atan2(rY, rX)
     shipAngularVel = 0
@@ -98,7 +97,9 @@ def simulation(rX, rY, vX, vY, engines, parts):
 
     for i in range(STEPS_COUNT):
         rX, rY, vX, vY, shipOrientation, shipAngularVel, engineForces = eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, parts)
-        controller_.update(t=i * DT, rX=rX, rY=rY, vX=vX, vY=vY, shipOrientation=shipOrientation, shipAngularVel=shipAngularVel)
+        
+        controller.update(t=i * DT, rX=rX, rY=rY, vX=vX, vY=vY, shipOrientation=shipOrientation, shipAngularVel=shipAngularVel)
+        
         if engineForces > 0:
             trajectoryFuel.append((rX, rY))
         else:
