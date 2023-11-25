@@ -25,6 +25,9 @@ class MainScript(ScriptBase):
         self.initialAnglePID = PidRegulator(0, 0, 2, DT)
         self.courseAlignPID = PidRegulator(0, 0, 2, DT)
 
+    def getStage(self):
+        return self.stage
+
     def thrustersControl(self, thrusterLeft, thrusterRight, control):
         thrusterLeft.setThrustLevel(control)
         thrusterRight.setThrustLevel(-control)
@@ -49,16 +52,17 @@ class MainScript(ScriptBase):
                 thrusterRight.active()
                 thrusterRight.setThrustLevel(0)
 
+                print("Main engine has been activaited (stage 1)")
                 self.stage = 1
             case 1:
                 if height >= SAFE_HEIGHT:
-                    print("Safe height has been reached")
+                    print("Safe height has been reached (stage 2)")
                     self.stage = 2
             case 2:
                 angleError = getAngleDifference(TARGET_ALPHA, alpha)
 
                 if abs(angleError) < INITIAL_ANGLE_ACCURACY:
-                    print("Target angle has been reached")
+                    print("Target angle has been reached (stage 3)")
                     self.stage = 3
                 
                 controlSignal = self.initialAnglePID.control(angleError)
@@ -70,7 +74,7 @@ class MainScript(ScriptBase):
                 self.thrustersControl(thrusterLeft, thrusterRight, controlSignal)
 
                 if mainEngine.getFuelMass() <= 0:
-                    print("Ouf of fuel")
+                    print("Ouf of fuel (stage 4)")
 
                     thrusterLeft.inactive()
                     thrusterRight.inactive()

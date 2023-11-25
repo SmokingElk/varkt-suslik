@@ -10,7 +10,7 @@ LINE_WIDTH = 3
 def draw_path(draw, pathData):
     color, path = pathData[0], pathData[1]
     
-    if (len(path) < 2):
+    if len(path) < 2:
         return
     
     real_path = [(int(i[0] * SCALE) + WIDTH / 2, HEIGHT / 2 - int(i[1] * SCALE)) for i in path]

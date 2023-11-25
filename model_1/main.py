@@ -6,8 +6,13 @@ from controller import Controller
 from controller_scripts import MainScript
 from global_params import RX0, RY0, VX0, VY0, CRASH_THRESHOLD, MOON_RADIUS, MOON_MASS, G, DT, SIMULATION_TIME
 
-COLOR_FUEL = (241,53,53)
-COLOR_FREE = (53, 178, 241)
+COLORS = [
+    (53, 241, 112),
+    (241, 207, 53),
+    (241, 53, 53),
+    (241, 53, 228),
+    (53, 178, 241),
+]
 
 PI_2 = 2 * pi
 
@@ -71,34 +76,36 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, p
 
 def simulation(rX, rY, vX, vY, engines, parts):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
-    controller = Controller({"main_engine": engines[0], "thruster_left": engines[1], "thruster_right": engines[2]}, [MainScript()])
+    mainScript = MainScript()
+    controller = Controller({"main_engine": engines[0], "thruster_left": engines[1], "thruster_right": engines[2]}, [mainScript])
 
     shipOrientation = atan2(rY, rX)
     shipAngularVel = 0
 
-    trajectoryFuel = [(rX, rY)]
-    trajectoryFree = []
+    trajectories = [[(rX, rY)]]
     isCrash = False
 
     for i in range(STEPS_COUNT):
         rX, rY, vX, vY, shipOrientation, shipAngularVel = eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, parts)
         
-        controller.update(t=i * DT, rX=rX, rY=rY, vX=vX, vY=vY, shipOrientation=shipOrientation, shipAngularVel=shipAngularVel)
-        
-        if engines[0].isActive():
-            trajectoryFuel.append((rX, rY))
+        if mainScript.getStage() < len(trajectories):
+            trajectories[-1].append((rX, rY))
         else:
-            trajectoryFree.append((rX, rY))
+            lastPoint = trajectories[-1][-1]
+            trajectories.append([lastPoint, (rX, rY)])
+
+        controller.update(t=i * DT, rX=rX, rY=rY, vX=vX, vY=vY, shipOrientation=shipOrientation, shipAngularVel=shipAngularVel)
  
         if distToMoon(rX, rY) <= MOON_RADIUS and not isShipLanded(rX, rY, vX, vY):
             print(vecMag(vX, vY), distToMoon(rX, rY) <= MOON_RADIUS)
             isCrash = True
             break
-    
-    # соединить траекторию полета с включенным и выключенным двигателем
-    trajectoryFree = [trajectoryFuel[-1]] + trajectoryFree
 
-    return trajectoryFuel, trajectoryFree, isCrash
+    return trajectories, isCrash
+
+
+def colorizeTrajectories(trajectories, colors):
+    return [[colors[i % len(colors)], trajectories[i]] for i in range(len(trajectories))]
 
 
 def main():
@@ -128,15 +135,12 @@ def main():
     engines = [mainEngine, thrusterLeft, thrusterRight]
     parts = [mainEngine, Part(0.005, 0.00004)]
 
-    trajectoryFuel, trajectoryFree, isCrash = simulation(RX0, RY0, VX0, VY0, engines, parts)
+    trajectories, isCrash = simulation(RX0, RY0, VX0, VY0, engines, parts)
 
     if isCrash:
         print("CRASH!")
 
-    make_plot(MOON_RADIUS, [
-        [COLOR_FUEL, trajectoryFuel],
-        [COLOR_FREE, trajectoryFree],
-    ], "./model_1/plot.png")
+    make_plot(MOON_RADIUS, colorizeTrajectories(trajectories, COLORS), "./model_1/plot.png")
 
 
 if __name__ == "__main__":
