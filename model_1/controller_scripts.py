@@ -33,6 +33,8 @@ class MainScript(ScriptBase):
         thrusterRight.setThrustLevel(-control)
 
     def update(self, model, metrics):
+        time = metrics["t"]
+
         mainEngine = model["main_engine"]
         thrusterLeft = model["thruster_left"]
         thrusterRight = model["thruster_right"]
@@ -52,17 +54,17 @@ class MainScript(ScriptBase):
                 thrusterRight.active()
                 thrusterRight.setThrustLevel(0)
 
-                print("Main engine has been activaited (stage 1)")
+                print(f"Main engine has been activaited at {time} (stage 1)")
                 self.stage = 1
             case 1:
                 if height >= SAFE_HEIGHT:
-                    print("Safe height has been reached (stage 2)")
+                    print(f"Safe height has been reached at {time} (stage 2)")
                     self.stage = 2
             case 2:
                 angleError = getAngleDifference(TARGET_ALPHA, alpha)
 
                 if abs(angleError) < INITIAL_ANGLE_ACCURACY:
-                    print("Target angle has been reached (stage 3)")
+                    print(f"Target angle has been reached at {time} (stage 3)")
                     self.stage = 3
                 
                 controlSignal = self.initialAnglePID.control(angleError)
@@ -74,7 +76,7 @@ class MainScript(ScriptBase):
                 self.thrustersControl(thrusterLeft, thrusterRight, controlSignal)
 
                 if mainEngine.getFuelMass() <= 0:
-                    print("Ouf of fuel (stage 4)")
+                    print(f"Ouf of fuel at {time} (stage 4)")
 
                     thrusterLeft.inactive()
                     thrusterRight.inactive()
