@@ -71,9 +71,6 @@ class ManeuveringThruster(EngineBase):
         self._direction = direction
         self._thrustLevel = 0
 
-    def setThrustLevel(self, level):
-        self._thrustLevel = min(1, max(0, level))
-
     def getMoment(self):
         return self._height * self._direction * self._thrustLevel * self.getThrust() 
 

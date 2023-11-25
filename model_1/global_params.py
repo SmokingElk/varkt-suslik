@@ -1,0 +1,14 @@
+# сила притяжения
+MOON_RADIUS = 1
+MOON_MASS = 0.5
+G = 1
+
+CRASH_THRESHOLD = 0.1
+
+RX0 = 0
+RY0 = 1.0
+VX0 = 0.0
+VY0 = 0.0
+
+DT = 0.01
+SIMULATION_TIME = 40
