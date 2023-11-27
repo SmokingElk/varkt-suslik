@@ -26,6 +26,9 @@ class EngineBase(Part):
     def setThrustLevel(self, level):
         self._thrustLevel = min(1, max(0, level))
 
+    def getThrustLevel(self):
+        return self._thrustLevel
+
     def getFuelMass(self):
         return 0
     
@@ -39,7 +42,7 @@ class CruiseEngine(EngineBase):
         self._workingTime = workingTime
 
     def getFuelMassDt(self):
-        return self._dFuelMassDt
+        return self._dFuelMassDt * self._thrustLevel
 
     def getFuelMass(self):
         return self._fuelMass

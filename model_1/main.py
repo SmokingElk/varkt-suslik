@@ -7,11 +7,11 @@ from controller_scripts import MainScript
 from global_params import RX0, RY0, VX0, VY0, CRASH_THRESHOLD, MOON_RADIUS, MOON_MASS, G, DT, SIMULATION_TIME
 
 COLORS = [
-    (53, 241, 112),
+    (241, 53, 228),
     (241, 207, 53),
     (241, 53, 53),
-    (241, 53, 228),
-    (53, 178, 241),
+    (53, 147, 241),
+    (0, 197, 95),
 ]
 
 PI_2 = 2 * pi
@@ -56,7 +56,7 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, p
     inertiaMoment = getInertiaMoment(parts)
 
     shipAngularAcc = momentsSum / inertiaMoment
-    shipAngularVel1 = (shipAngularVel + shipAngularAcc * DT + PI_2) % PI_2 
+    shipAngularVel1 = shipAngularVel + shipAngularAcc * DT
     shipOrientation1 = (shipOrientation + (shipAngularVel + shipAngularVel1) / 2 * DT + PI_2) % PI_2
     
     # направление корабля
@@ -73,6 +73,7 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, p
     rY1 = rY + (vY + vY1) / 2 * DT
 
     return rX1, rY1, vX1, vY1, shipOrientation1, shipAngularVel1
+
 
 def simulation(rX, rY, vX, vY, engines, parts):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
