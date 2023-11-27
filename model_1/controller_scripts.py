@@ -4,9 +4,9 @@ from pid import PidRegulator
 from global_params import DT, MOON_RADIUS
 
 SAFE_HEIGHT = 0.1
-TARGET_ALPHA = 0.142
+TARGET_ALPHA = -pi / 3
 INITIAL_ANGLE_ACCURACY = 0.01
-
+VELOCITY_ALIGNING_DELAY = 0.5
 
 def getAngleDifference(alpha, beta):
     phi = abs(alpha - beta)
@@ -22,8 +22,8 @@ def getAngleDifference(alpha, beta):
 class MainScript(ScriptBase):
     def __init__(self):
         self.stage = 0
-        self.initialAnglePID = PidRegulator(0, 0, 2, DT)
-        self.courseAlignPID = PidRegulator(0, 0, 2, DT)
+
+        self.initialAnglePID = PidRegulator(4, 0, 2, DT)
 
     def getStage(self):
         return self.stage
@@ -40,7 +40,6 @@ class MainScript(ScriptBase):
         thrusterRight = model["thruster_right"]
 
         alpha = metrics["shipOrientation"]
-        theta = atan2(metrics["vY"], metrics["vX"])
         height = sqrt(metrics["rX"]**2 + metrics["rY"]**2) - MOON_RADIUS
 
         match self.stage:
@@ -61,30 +60,20 @@ class MainScript(ScriptBase):
                     print(f"Safe height has been reached at {time} (stage 2)")
                     self.stage = 2
             case 2:
-                angleError = getAngleDifference(TARGET_ALPHA, alpha)
+                angleError = getAngleDifference(alpha, TARGET_ALPHA)
 
                 if abs(angleError) < INITIAL_ANGLE_ACCURACY:
                     print(f"Target angle has been reached at {time} (stage 3)")
                     self.stage = 3
+                    mainEngine.setThrustLevel(0)
+                    self.targetAlphaReachedTime = metrics["t"]
                 
                 controlSignal = self.initialAnglePID.control(angleError)
                 self.thrustersControl(thrusterLeft, thrusterRight, controlSignal)
+                
             case 3:
-                angleError = getAngleDifference(theta, alpha)
-
-                controlSignal = self.courseAlignPID.control(angleError)
-                self.thrustersControl(thrusterLeft, thrusterRight, controlSignal)
-
-                if mainEngine.getFuelMass() <= 0:
-                    print(f"Ouf of fuel at {time} (stage 4)")
-
-                    thrusterLeft.inactive()
-                    thrusterRight.inactive()
-
-                    self.stage = 4
-            case 4:
                 pass
 
 
 if __name__ == "__main__":
-    print(getAngleDifference(-pi / 6, pi / 6), pi / 3)
+    print(getAngleDifference(1.5708, 0.142))
