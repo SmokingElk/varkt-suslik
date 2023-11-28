@@ -22,8 +22,12 @@ def getAngleDifference(alpha, beta):
 class MainScript(ScriptBase):
     def __init__(self):
         self.stage = 0
+        self._isFreeFlight = False
 
         self.initialAnglePID = PidRegulator(4, 0, 2, DT)
+
+    def isFreeFlight(self):
+        return self._isFreeFlight
 
     def getStage(self):
         return self.stage
@@ -66,7 +70,7 @@ class MainScript(ScriptBase):
                     print(f"Target angle has been reached at {time} (stage 3)")
                     self.stage = 3
                     mainEngine.setThrustLevel(0)
-                    self.targetAlphaReachedTime = metrics["t"]
+                    self._isFreeFlight = True
                 
                 controlSignal = self.initialAnglePID.control(angleError)
                 self.thrustersControl(thrusterLeft, thrusterRight, controlSignal)

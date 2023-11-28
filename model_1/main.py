@@ -4,7 +4,7 @@ from rocket_parts import Part, getInertiaMoment
 from engines import CruiseEngine, ManeuveringThruster
 from controller import Controller
 from controller_scripts import MainScript
-from global_params import RX0, RY0, VX0, VY0, CRASH_THRESHOLD, MOON_RADIUS, MOON_MASS, G, DT, SIMULATION_TIME
+from global_params import RX0, RY0, VX0, VY0, CRASH_THRESHOLD, MOON_RADIUS, MOON_MASS, G, DT, SIMULATION_TIME, MAX_ORBIT_HEIGHT
 
 COLORS = [
     (241, 53, 228),
@@ -75,6 +75,25 @@ def eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, p
     return rX1, rY1, vX1, vY1, shipOrientation1, shipAngularVel1
 
 
+def updateOrbitStatistics(rX, rY, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist):
+    distToSurface = distToMoon(rX, rY) - MOON_RADIUS
+
+    apocenterPoint1 = apocenterPoint
+    apocenterDist1 = apocenterDist
+    pericenterPoint1 = pericenterPoint
+    pericenterDist1 = pericenterDist
+
+    if distToSurface > apocenterDist:
+        apocenterDist1 = distToSurface
+        apocenterPoint1 = (rX, rY)
+
+    if distToSurface < pericenterDist:
+        pericenterDist1 = distToSurface
+        pericenterPoint1 = (rX, rY)
+
+    return apocenterPoint1, apocenterDist1, pericenterPoint1, pericenterDist1
+
+
 def simulation(rX, rY, vX, vY, engines, parts):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
     mainScript = MainScript()
@@ -86,6 +105,11 @@ def simulation(rX, rY, vX, vY, engines, parts):
     trajectories = [[(rX, rY)]]
     isCrash = False
 
+    apocenterPoint = (0, 0)
+    apocenterDist = 0
+    pericenterPoint = (0, 0)
+    pericenterDist = MAX_ORBIT_HEIGHT
+
     for i in range(STEPS_COUNT):
         rX, rY, vX, vY, shipOrientation, shipAngularVel = eulerIntegration(rX, rY, vX, vY, shipOrientation, shipAngularVel, engines, parts)
         
@@ -96,13 +120,15 @@ def simulation(rX, rY, vX, vY, engines, parts):
             trajectories.append([lastPoint, (rX, rY)])
 
         controller.update(t=i * DT, rX=rX, rY=rY, vX=vX, vY=vY, shipOrientation=shipOrientation, shipAngularVel=shipAngularVel)
- 
+        if mainScript.isFreeFlight():
+            apocenterPoint, apocenterDist, pericenterPoint, pericenterDist = updateOrbitStatistics(rX, rY, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist)
+
         if distToMoon(rX, rY) <= MOON_RADIUS and not isShipLanded(rX, rY, vX, vY):
             print(vecMag(vX, vY), distToMoon(rX, rY) <= MOON_RADIUS)
             isCrash = True
             break
 
-    return trajectories, isCrash
+    return trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash
 
 
 def colorizeTrajectories(trajectories, colors):
@@ -136,12 +162,23 @@ def main():
     engines = [mainEngine, thrusterLeft, thrusterRight]
     parts = [mainEngine, Part(0.005, 0.00004)]
 
-    trajectories, isCrash = simulation(RX0, RY0, VX0, VY0, engines, parts)
+    trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash = simulation(RX0, RY0, VX0, VY0, engines, parts)
 
     if isCrash:
         print("CRASH!")
 
-    make_plot(MOON_RADIUS, colorizeTrajectories(trajectories, COLORS), "./model_1/plot.png")
+    print(f"Apocenter distance: {apocenterDist}")
+    print(f"Pericenter distance: {pericenterDist}")
+
+    make_plot(
+        MOON_RADIUS, 
+        apocenterPoint,
+        apocenterDist,
+        pericenterPoint,
+        pericenterDist,
+        colorizeTrajectories(trajectories, COLORS), 
+        "./model_1/plot.png"
+    )
 
 
 if __name__ == "__main__":

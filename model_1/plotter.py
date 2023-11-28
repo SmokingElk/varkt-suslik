@@ -6,6 +6,10 @@ HEIGHT = 1000
 SCALE = 100
 LINE_WIDTH = 3
 
+MARKS_SIZE = 12
+MARKS_COLOR = (0, 220, 106)
+
+FONT = ImageFont.truetype('./model_1/resources/roboto.ttf', 25) 
 
 def draw_path(draw, pathData):
     color, path = pathData[0], pathData[1]
@@ -19,7 +23,23 @@ def draw_path(draw, pathData):
         draw.line((real_path[i], real_path[i - 1]), fill=color, width=LINE_WIDTH)
 
 
-def make_plot(planet_radius, paths, saveas):
+def drawOrbitData(draw, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist):
+    apoX = WIDTH / 2 + apocenterPoint[0] * SCALE 
+    apoY = HEIGHT / 2 - apocenterPoint[1] * SCALE
+    periX = WIDTH / 2 + pericenterPoint[0] * SCALE
+    periY = HEIGHT / 2 - pericenterPoint[1] * SCALE
+    
+    draw.rectangle(((periX - MARKS_SIZE, periY - MARKS_SIZE), (periX + MARKS_SIZE, periY + MARKS_SIZE)), width=LINE_WIDTH, outline=MARKS_COLOR)
+    draw.ellipse((apoX - MARKS_SIZE, apoY - MARKS_SIZE, apoX + MARKS_SIZE, apoY + MARKS_SIZE), width=LINE_WIDTH, outline=MARKS_COLOR)
+
+    draw.rectangle(((35 - MARKS_SIZE, HEIGHT - 35 - MARKS_SIZE), (35 + MARKS_SIZE, HEIGHT - 35 + MARKS_SIZE)), width=LINE_WIDTH, outline=MARKS_COLOR)
+    draw.ellipse((35 - MARKS_SIZE, HEIGHT - 85 - MARKS_SIZE, 35 + MARKS_SIZE, HEIGHT - 85 + MARKS_SIZE), width=LINE_WIDTH, outline=MARKS_COLOR)
+
+    draw.text((57, HEIGHT - 100), f"Apocenter: {apocenterDist:.3f}", (0, 0, 0), font=FONT, align="left")
+    draw.text((57, HEIGHT - 50), f"Pericenter: {pericenterDist:.3f}", (0, 0, 0), font=FONT, align="left")
+
+
+def make_plot(planet_radius, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, paths, saveas):
     image = Image.new('RGBA', (WIDTH, HEIGHT))
     draw = ImageDraw.Draw(image)
 
@@ -33,5 +53,7 @@ def make_plot(planet_radius, paths, saveas):
 
     for i in paths:
         draw_path(draw, i)    
+
+    drawOrbitData(draw, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist)
 
     image.save(saveas)
