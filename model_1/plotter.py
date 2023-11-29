@@ -23,7 +23,11 @@ def draw_path(draw, pathData):
         draw.line((real_path[i], real_path[i - 1]), fill=color, width=LINE_WIDTH)
 
 
-def drawOrbitData(draw, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist):
+def drawOrbitData(draw, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, orbitWasReached):
+    if not orbitWasReached:
+        draw.text((57, HEIGHT - 50), f"Orbit wasn't reached", (0, 0, 0), font=FONT, align="left")    
+        return
+
     apoX = WIDTH / 2 + apocenterPoint[0] * SCALE 
     apoY = HEIGHT / 2 - apocenterPoint[1] * SCALE
     periX = WIDTH / 2 + pericenterPoint[0] * SCALE
@@ -39,7 +43,7 @@ def drawOrbitData(draw, apocenterPoint, apocenterDist, pericenterPoint, pericent
     draw.text((57, HEIGHT - 50), f"Pericenter: {pericenterDist:.3f}", (0, 0, 0), font=FONT, align="left")
 
 
-def make_plot(planet_radius, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, paths, saveas):
+def make_plot(planet_radius, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, orbitWasReached, paths, saveas):
     image = Image.new('RGBA', (WIDTH, HEIGHT))
     draw = ImageDraw.Draw(image)
 
@@ -54,6 +58,6 @@ def make_plot(planet_radius, apocenterPoint, apocenterDist, pericenterPoint, per
     for i in paths:
         draw_path(draw, i)    
 
-    drawOrbitData(draw, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist)
+    drawOrbitData(draw, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, orbitWasReached)
 
     image.save(saveas)
