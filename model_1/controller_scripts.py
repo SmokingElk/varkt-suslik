@@ -36,7 +36,7 @@ class MainScript(ScriptBase):
         thrusterLeft.setThrustLevel(control)
         thrusterRight.setThrustLevel(-control)
 
-    def update(self, model, metrics):
+    def update(self, model, metrics, log):
         time = metrics["t"]
 
         mainEngine = model["main_engine"]
@@ -57,17 +57,17 @@ class MainScript(ScriptBase):
                 thrusterRight.active()
                 thrusterRight.setThrustLevel(0)
 
-                print(f"Main engine has been activaited at {time} (stage 1)")
+                log(f"Main engine has been activaited at {time} (stage 1)")
                 self.stage = 1
             case 1:
                 if height >= SAFE_HEIGHT:
-                    print(f"Safe height has been reached at {time} (stage 2)")
+                    log(f"Safe height has been reached at {time} (stage 2)")
                     self.stage = 2
             case 2:
                 angleError = getAngleDifference(alpha, TARGET_ALPHA)
 
                 if abs(angleError) < INITIAL_ANGLE_ACCURACY:
-                    print(f"Target angle has been reached at {time} (stage 3)")
+                    log(f"Target angle has been reached at {time} (stage 3)")
                     self.stage = 3
                     mainEngine.setThrustLevel(0)
                     self._isFreeFlight = True

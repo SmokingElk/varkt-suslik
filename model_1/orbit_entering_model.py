@@ -1,4 +1,4 @@
-from plotter import make_plot
+from plotter import make_orbit_plot
 from math import sqrt, atan2, cos, sin, pi
 from rocket_parts import Part, getInertiaMoment
 from engines import CruiseEngine, ManeuveringThruster
@@ -94,10 +94,10 @@ def updateOrbitStatistics(rX, rY, apocenterPoint, apocenterDist, pericenterPoint
     return apocenterPoint1, apocenterDist1, pericenterPoint1, pericenterDist1
 
 
-def simulation(rX, rY, vX, vY, engines, parts):
+def simulation(rX, rY, vX, vY, engines, parts, needLog):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
     mainScript = MainScript()
-    controller = Controller({"main_engine": engines[0], "thruster_left": engines[1], "thruster_right": engines[2]}, [mainScript])
+    controller = Controller({"main_engine": engines[0], "thruster_left": engines[1], "thruster_right": engines[2]}, [mainScript], needLog)
 
     shipOrientation = atan2(rY, rX)
     shipAngularVel = 0
@@ -124,7 +124,6 @@ def simulation(rX, rY, vX, vY, engines, parts):
             apocenterPoint, apocenterDist, pericenterPoint, pericenterDist = updateOrbitStatistics(rX, rY, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist)
 
         if distToMoon(rX, rY) <= MOON_RADIUS and not isShipLanded(rX, rY, vX, vY):
-            print(vecMag(vX, vY), distToMoon(rX, rY) <= MOON_RADIUS)
             isCrash = True
             break
 
@@ -133,7 +132,7 @@ def simulation(rX, rY, vX, vY, engines, parts):
     return trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash, orbitWasReached
 
 
-def calculateOrbitData(fuelMass, payloadMass):
+def calculateOrbitData(fuelMass, payloadMass, needLog=False):
     THRUSTERS_HEIGHT = 0.00000009
     THRUSTERS_THRUST = 0.00001
 
@@ -160,7 +159,7 @@ def calculateOrbitData(fuelMass, payloadMass):
     engines = [mainEngine, thrusterLeft, thrusterRight]
     parts = [mainEngine, Part(payloadMass, 0.00004)]
 
-    return simulation(RX0, RY0, VX0, VY0, engines, parts)
+    return simulation(RX0, RY0, VX0, VY0, engines, parts, needLog)
 
 
 def colorizeTrajectories(trajectories, colors):
@@ -171,7 +170,7 @@ def main():
     fuelMass = 0.01
     payloadMass = 0.005
 
-    trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash, orbitWasReached = calculateOrbitData(fuelMass, payloadMass)
+    trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash, orbitWasReached = calculateOrbitData(fuelMass, payloadMass, True)
 
     if isCrash:
         print("CRASH!")
@@ -182,7 +181,7 @@ def main():
     else:
         print("Orbit wasn't reached.")
 
-    make_plot(
+    make_orbit_plot(
         MOON_RADIUS, 
         apocenterPoint,
         apocenterDist,

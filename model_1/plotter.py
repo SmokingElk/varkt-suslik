@@ -9,6 +9,10 @@ LINE_WIDTH = 3
 MARKS_SIZE = 12
 MARKS_COLOR = (0, 220, 106)
 
+FIELD_PADDING = 0.2
+FIELD_INCLUDED_COLOR = (0, 220, 106)
+FIELD_GRID_COLOR = (230, 230, 230)
+
 FONT = ImageFont.truetype('./model_1/resources/roboto.ttf', 25) 
 
 def draw_path(draw, pathData):
@@ -43,7 +47,7 @@ def drawOrbitData(draw, apocenterPoint, apocenterDist, pericenterPoint, pericent
     draw.text((57, HEIGHT - 50), f"Pericenter: {pericenterDist:.3f}", (0, 0, 0), font=FONT, align="left")
 
 
-def make_plot(planet_radius, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, orbitWasReached, paths, saveas):
+def make_orbit_plot(planet_radius, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, orbitWasReached, paths, saveas):
     image = Image.new('RGBA', (WIDTH, HEIGHT))
     draw = ImageDraw.Draw(image)
 
@@ -60,4 +64,46 @@ def make_plot(planet_radius, apocenterPoint, apocenterDist, pericenterPoint, per
 
     drawOrbitData(draw, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, orbitWasReached)
 
+    image.save(saveas)
+
+
+def makeFieldPlot(field, fuelMin, fuelMax, payloadMin, payloadMax, saveas):
+    image = Image.new('RGBA', (WIDTH, HEIGHT))
+    draw = ImageDraw.Draw(image)
+
+    fieldSize = len(field)
+    padding = FIELD_PADDING * WIDTH
+    circleRad = (WIDTH - padding * 2) / (fieldSize - 1) / 3
+
+    draw.rectangle(((0, 0), (WIDTH, HEIGHT)), fill=(255, 255, 255))
+    
+    for i in range(0, fieldSize):
+        x = padding + (WIDTH - padding * 2) / (fieldSize - 1) * i
+        y = HEIGHT - (padding + (HEIGHT - padding * 2) / (fieldSize - 1) * i)
+
+        draw.line(((x, 0), (x, HEIGHT)), fill=FIELD_GRID_COLOR, width=LINE_WIDTH) 
+        draw.line(((0, y), (WIDTH, y)), fill=FIELD_GRID_COLOR, width=LINE_WIDTH)    
+
+    for j in range(0, fieldSize):
+        for i in range(0, fieldSize):
+            if not field[j][i]:
+                continue
+
+            y = HEIGHT - (padding + (HEIGHT - padding * 2) / (fieldSize - 1) * j)
+            x = padding + (WIDTH - padding * 2) / (fieldSize - 1) * i
+
+            draw.ellipse((x - circleRad, y - circleRad, x + circleRad, y + circleRad), width=LINE_WIDTH, fill=FIELD_INCLUDED_COLOR)
+
+    draw.line(((0, HEIGHT - padding / 2), (WIDTH, HEIGHT - padding / 2)), fill=(0, 0, 0), width=LINE_WIDTH)  
+    draw.line(((padding / 2, 0), (padding / 2, HEIGHT)), fill=(0, 0, 0), width=LINE_WIDTH) 
+
+    draw.text((padding / 2 + 10, 20), f"Payload mass", (0, 0, 0), font=FONT, anchor="lt")
+    draw.text((WIDTH - 20, HEIGHT - padding / 2 - 10), f"Fuel mass", (0, 0, 0), font=FONT, anchor="rb")
+
+    draw.text((padding, HEIGHT - padding / 2 + 10), f"{fuelMin}", (0, 0, 0), font=FONT, anchor="mt")
+    draw.text((WIDTH - padding, HEIGHT - padding / 2 + 10), f"{fuelMax}", (0, 0, 0), font=FONT, anchor="mt")
+
+    draw.text((padding / 2 - 10, HEIGHT - padding), f"{payloadMin}", (0, 0, 0), font=FONT, anchor="rm")
+    draw.text((padding / 2 - 10, padding), f"{payloadMax}", (0, 0, 0), font=FONT, anchor="rm")
+    
     image.save(saveas)
