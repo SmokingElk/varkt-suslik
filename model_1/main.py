@@ -21,8 +21,8 @@ def main():
         row = []
 
         for i in range(0, STEPS_COUNT):
-            fuelMass = lerp(FUEL_MASS_MIN, FUEL_MASS_MAX, j / (STEPS_COUNT - 1))
-            payloadMass = lerp(PAYLOAD_MASS_MIN, PAYLOAD_MASS_MAX, i / (STEPS_COUNT - 1))
+            fuelMass = lerp(FUEL_MASS_MIN, FUEL_MASS_MAX, i / (STEPS_COUNT - 1))
+            payloadMass = lerp(PAYLOAD_MASS_MIN, PAYLOAD_MASS_MAX, j / (STEPS_COUNT - 1))
 
             tr, ap, ad, pp, pd, cr, orbitWasReached = calculateOrbitData(fuelMass, payloadMass)
             row.append(orbitWasReached)
