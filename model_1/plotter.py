@@ -10,8 +10,12 @@ MARKS_SIZE = 12
 MARKS_COLOR = (0, 220, 106)
 
 FIELD_PADDING = 0.2
-FIELD_INCLUDED_COLOR = (0, 220, 106)
 FIELD_GRID_COLOR = (230, 230, 230)
+FIELD_POINTS_COLORS = [
+    (0, 220, 106),
+    (220, 194, 0),
+    (220,220,220),
+]
 
 FONT = ImageFont.truetype('./model_1/resources/roboto.ttf', 25) 
 
@@ -86,13 +90,12 @@ def makeFieldPlot(field, fuelMin, fuelMax, payloadMin, payloadMax, saveas):
 
     for j in range(0, fieldSize):
         for i in range(0, fieldSize):
-            if not field[j][i]:
-                continue
-
             y = HEIGHT - (padding + (HEIGHT - padding * 2) / (fieldSize - 1) * j)
             x = padding + (WIDTH - padding * 2) / (fieldSize - 1) * i
 
-            draw.ellipse((x - circleRad, y - circleRad, x + circleRad, y + circleRad), width=LINE_WIDTH, fill=FIELD_INCLUDED_COLOR)
+            pointColor = FIELD_POINTS_COLORS[field[j][i]]
+
+            draw.ellipse((x - circleRad, y - circleRad, x + circleRad, y + circleRad), width=LINE_WIDTH, fill=pointColor)
 
     draw.line(((0, HEIGHT - padding / 2), (WIDTH, HEIGHT - padding / 2)), fill=(0, 0, 0), width=LINE_WIDTH)  
     draw.line(((padding / 2, 0), (padding / 2, HEIGHT)), fill=(0, 0, 0), width=LINE_WIDTH) 
