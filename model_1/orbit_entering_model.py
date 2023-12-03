@@ -97,7 +97,13 @@ def updateOrbitStatistics(rX, rY, apocenterPoint, apocenterDist, pericenterPoint
 def simulation(rX, rY, vX, vY, engines, parts, needLog, autopilot):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
     mainScript = MainScriptV1() if autopilot == "V1" else MainScriptV2()
-    controller = Controller({"main_engine": engines[0], "thruster_left": engines[1], "thruster_right": engines[2]}, [mainScript], needLog)
+    
+    controller = Controller({
+        "main_engine": engines[0], 
+        "thruster_left": engines[1], 
+        "thruster_right": engines[2],
+        "parts": parts,
+    }, [mainScript], needLog)
 
     shipOrientation = atan2(rY, rX)
     shipAngularVel = 0
@@ -167,8 +173,8 @@ def colorizeTrajectories(trajectories, colors):
 
 
 def main():
-    fuelMass = 0.01
-    payloadMass = 0.005
+    fuelMass = 0.0086
+    payloadMass = 0.0064
 
     trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash, orbitWasReached = calculateOrbitData(fuelMass, payloadMass, True, autopilot="V2")
 
