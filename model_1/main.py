@@ -24,7 +24,7 @@ def main():
             fuelMass = lerp(FUEL_MASS_MIN, FUEL_MASS_MAX, i / (STEPS_COUNT - 1))
             payloadMass = lerp(PAYLOAD_MASS_MIN, PAYLOAD_MASS_MAX, j / (STEPS_COUNT - 1))
 
-            tr, ap, ad, pp, pd, crash, orbitWasReached = calculateOrbitData(fuelMass, payloadMass)
+            tr, ap, ad, pp, pd, crash, orbitWasReached = calculateOrbitData(fuelMass, payloadMass, autopilot="V2")
             
             if orbitWasReached:
                 row.append(0)

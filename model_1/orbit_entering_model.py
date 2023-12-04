@@ -3,7 +3,7 @@ from math import sqrt, atan2, cos, sin, pi
 from rocket_parts import Part, getInertiaMoment
 from engines import CruiseEngine, ManeuveringThruster
 from controller import Controller
-from controller_scripts import MainScript
+from controller_scripts import MainScriptV1, MainScriptV2
 from global_params import RX0, RY0, VX0, VY0, CRASH_THRESHOLD, MOON_RADIUS, MOON_MASS, G, DT, SIMULATION_TIME, MAX_ORBIT_HEIGHT, TIME_MASS_FACTOR
 
 COLORS = [
@@ -94,10 +94,16 @@ def updateOrbitStatistics(rX, rY, apocenterPoint, apocenterDist, pericenterPoint
     return apocenterPoint1, apocenterDist1, pericenterPoint1, pericenterDist1
 
 
-def simulation(rX, rY, vX, vY, engines, parts, needLog):
+def simulation(rX, rY, vX, vY, engines, parts, needLog, autopilot):
     STEPS_COUNT = int(SIMULATION_TIME / DT)
-    mainScript = MainScript()
-    controller = Controller({"main_engine": engines[0], "thruster_left": engines[1], "thruster_right": engines[2]}, [mainScript], needLog)
+    mainScript = MainScriptV1() if autopilot == "V1" else MainScriptV2()
+    
+    controller = Controller({
+        "main_engine": engines[0], 
+        "thruster_left": engines[1], 
+        "thruster_right": engines[2],
+        "parts": parts,
+    }, [mainScript], needLog)
 
     shipOrientation = atan2(rY, rX)
     shipAngularVel = 0
@@ -132,7 +138,7 @@ def simulation(rX, rY, vX, vY, engines, parts, needLog):
     return trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash, orbitWasReached
 
 
-def calculateOrbitData(fuelMass, payloadMass, needLog=False):
+def calculateOrbitData(fuelMass, payloadMass, needLog=False, autopilot="V1"):
     THRUSTERS_HEIGHT = 0.00000009
     THRUSTERS_THRUST = 0.00001
 
@@ -159,7 +165,7 @@ def calculateOrbitData(fuelMass, payloadMass, needLog=False):
     engines = [mainEngine, thrusterLeft, thrusterRight]
     parts = [mainEngine, Part(payloadMass, 0.00004)]
 
-    return simulation(RX0, RY0, VX0, VY0, engines, parts, needLog)
+    return simulation(RX0, RY0, VX0, VY0, engines, parts, needLog, autopilot)
 
 
 def colorizeTrajectories(trajectories, colors):
@@ -167,10 +173,10 @@ def colorizeTrajectories(trajectories, colors):
 
 
 def main():
-    fuelMass = 0.01
-    payloadMass = 0.005
+    fuelMass = 0.0086
+    payloadMass = 0.0064
 
-    trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash, orbitWasReached = calculateOrbitData(fuelMass, payloadMass, True)
+    trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash, orbitWasReached = calculateOrbitData(fuelMass, payloadMass, True, autopilot="V2")
 
     if isCrash:
         print("CRASH!")
