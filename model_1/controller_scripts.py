@@ -1,12 +1,8 @@
 from controller import ScriptBase
 from math import sqrt, pi, atan2, acos
 from pid import PidRegulator
-from global_params import DT, MOON_RADIUS, MOON_MASS, G
+from global_params import DT, MOON_RADIUS, MOON_MASS, G, SAFE_HEIGHT, TARGET_ALPHA, INITIAL_ANGLE_ACCURACY
 
-SAFE_HEIGHT = 0.1
-TARGET_ALPHA = -pi / 3
-INITIAL_ANGLE_ACCURACY = 0.01
-VELOCITY_ALIGNING_DELAY = 0.5
 
 def getAngleDifference(alpha, beta):
     phi = abs(alpha - beta)
