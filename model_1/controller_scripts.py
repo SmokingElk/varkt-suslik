@@ -90,7 +90,7 @@ class MainScriptV2(MainScriptBase):
     def __init__(self):
         super().__init__()
 
-        self.initialAnglePID = PidRegulator(64, 0, 2, DT)
+        self.initialAnglePID = PidRegulator(512, 0, 200, DT)
 
     def update(self, model, metrics, log):
         time = metrics["t"]

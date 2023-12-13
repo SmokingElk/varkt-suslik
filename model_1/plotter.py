@@ -103,10 +103,10 @@ def makeFieldPlot(field, fuelMin, fuelMax, payloadMin, payloadMax, saveas):
     draw.text((padding / 2 + 10, 20), f"Payload mass", (0, 0, 0), font=FONT, anchor="lt")
     draw.text((WIDTH - 20, HEIGHT - padding / 2 - 10), f"Fuel mass", (0, 0, 0), font=FONT, anchor="rb")
 
-    draw.text((padding, HEIGHT - padding / 2 + 10), f"{fuelMin}", (0, 0, 0), font=FONT, anchor="mt")
-    draw.text((WIDTH - padding, HEIGHT - padding / 2 + 10), f"{fuelMax}", (0, 0, 0), font=FONT, anchor="mt")
+    draw.text((padding, HEIGHT - padding / 2 + 10), f"{int(fuelMin)}", (0, 0, 0), font=FONT, anchor="mt")
+    draw.text((WIDTH - padding, HEIGHT - padding / 2 + 10), f"{int(fuelMax)}", (0, 0, 0), font=FONT, anchor="mt")
 
-    draw.text((padding / 2 - 10, HEIGHT - padding), f"{payloadMin}", (0, 0, 0), font=FONT, anchor="rm")
-    draw.text((padding / 2 - 10, padding), f"{payloadMax}", (0, 0, 0), font=FONT, anchor="rm")
+    draw.text((padding / 2 - 10, HEIGHT - padding), f"{int(payloadMin)}", (0, 0, 0), font=FONT, anchor="rm")
+    draw.text((padding / 2 - 10, padding), f"{int(payloadMax)}", (0, 0, 0), font=FONT, anchor="rm")
     
     image.save(saveas)

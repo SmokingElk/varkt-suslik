@@ -170,8 +170,8 @@ def colorizeTrajectories(trajectories, colors):
 
 
 def main():
-    fuelMass = 3.4 * 10**3
-    payloadMass = 0.94 * 10**3
+    fuelMass = 6.5 * 10**3
+    payloadMass = 3.5 * 10**3
 
     trajectories, apocenterPoint, apocenterDist, pericenterPoint, pericenterDist, isCrash, orbitWasReached = calculateOrbitData(fuelMass, payloadMass, True, autopilot="V2")
 
