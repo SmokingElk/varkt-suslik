@@ -1,13 +1,13 @@
 from orbit_entering_model import calculateOrbitData
 from plotter import makeFieldPlot
 
-FUEL_MASS_MIN = 0.001
-FUEL_MASS_MAX = 0.02
+FUEL_MASS_MIN = 0.32 * 10**3
+FUEL_MASS_MAX = 2 * 6.4 * 10**3
 
-PAYLOAD_MASS_MIN = 0.001
-PAYLOAD_MASS_MAX = 0.01
+PAYLOAD_MASS_MIN = 0.1 * 10**2
+PAYLOAD_MASS_MAX = 10 * 1.7 * 10**3
 
-STEPS_COUNT = 80
+STEPS_COUNT = 20
 
 
 def lerp(a, b, c):

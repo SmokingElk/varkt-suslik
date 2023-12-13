@@ -18,10 +18,10 @@ class EngineBase(Part):
         return self._isActive
 
     def getThrust(self):
-        return self._thrust if self.isActive() else 0
+        return self._thrust * self._thrustLevel if self.isActive() else 0
     
     def applyThrust(self, dt):
-        return self.getThrust() * self._thrustLevel, 0
+        return self.getThrust(), 0
 
     def setThrustLevel(self, level):
         self._thrustLevel = min(1, max(0, level))
